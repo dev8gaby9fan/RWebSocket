@@ -1,7 +1,7 @@
 # RWebSocket
 
 RWebSocket是一款基于OKHttp和RxJava实现的WebSocket连接工具，支持发送json字符串、普通字符窜
-和ByteString三种数据类型消息。
+和ByteString三种数据类型消息。其中断线重连部分参考了[WsManager](https://github.com/Rabtman/WsManager)
 
 ## 使用方法
 
@@ -70,4 +70,4 @@ public void onNext(@NonNull WebSocketResponse response) {
 
 ## 最终结果
 
-![]()
+![https://github.com/fshlny/RWebScoket/blob/master/shortCut/sample.png]()
