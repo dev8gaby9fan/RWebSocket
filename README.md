@@ -68,6 +68,13 @@ public void onNext(@NonNull WebSocketResponse response) {
     }
 ```
 
+4. 释放资源
+
+```
+if(this.handler != null)
+            handler.shutDown();
+```
+
 ## 最终结果
 
 ![](https://github.com/fshlny/RWebScoket/blob/master/shortCut/sample.png)

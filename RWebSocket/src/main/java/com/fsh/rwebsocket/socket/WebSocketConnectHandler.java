@@ -26,6 +26,7 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.Scheduler;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -91,7 +92,7 @@ public class WebSocketConnectHandler extends WebSocketListener {
 
     private long reconnectTimeout;
 
-    public WebSocketConnectHandler(Builder b) {
+    private WebSocketConnectHandler(Builder b) {
         this.cStatus = ConnectStatus.WEBSOCKET_INIT;
         this.url = b.url;
         this.needReConnect = b.needReConnect;
@@ -143,11 +144,7 @@ public class WebSocketConnectHandler extends WebSocketListener {
         this.mWebSocket = webSocket;
         this.reconnectCount = 0;
         setStatus(ConnectStatus.CONNECTED);
-        try {
-            Log.e(TAG, "连接成功:" + response.body().string());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            Log.e(TAG, "连接成功");
     }
 
     @Override
@@ -182,7 +179,7 @@ public class WebSocketConnectHandler extends WebSocketListener {
         Log.e(TAG, "连接失败:");
     }
 
-    public void setStatus(ConnectStatus s) {
+    private void setStatus(ConnectStatus s) {
         this.cStatus = s;
         if(emitter != null)
         this.emitter.onNext(new ConnectStatusMsg(this.cStatus));
@@ -241,7 +238,7 @@ public class WebSocketConnectHandler extends WebSocketListener {
         }
     }
 
-    public boolean checkCurrentStatus() {
+    private boolean checkCurrentStatus() {
         if (cStatus != ConnectStatus.CONNECTED) {
             throw new ApiException(cStatus.getStatusMsg());
         }
@@ -250,7 +247,7 @@ public class WebSocketConnectHandler extends WebSocketListener {
 
     /**
      * 发送json字符串数据
-     * @param request
+     * @param request JSON请求
      */
     public void sendMessage(final JSONRequest request) {
         sendTextMessage(request.toJsonString());
@@ -341,5 +338,16 @@ public class WebSocketConnectHandler extends WebSocketListener {
         },reconnectTimeout,TimeUnit.MILLISECONDS);
     }
 
-
+    /**
+     * 释放资源
+     */
+    public void shutDown(){
+        if(this.cStatus == ConnectStatus.CONNECTED){
+            this.disConnect();
+        }
+        this.cachedThreadPool.shutdown();
+        this.reConnectThreadPool.shutdown();
+        if(this.emitter != null)
+            this.emitter.onComplete();
+    }
 }

@@ -108,4 +108,11 @@ public class MainActivity extends AppCompatActivity implements Observer<WebSocke
     public void onComplete() {
 
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(this.handler != null)
+            handler.shutDown();
+    }
 }
