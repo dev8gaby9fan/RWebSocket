@@ -70,4 +70,4 @@ public void onNext(@NonNull WebSocketResponse response) {
 
 ## 最终结果
 
-![https://github.com/fshlny/RWebScoket/blob/master/shortCut/sample.png]()
+![](https://github.com/fshlny/RWebScoket/blob/master/shortCut/sample.png)
