@@ -76,11 +76,11 @@ public class WebSocketConnectHandler extends WebSocketListener {
     /**
      * 重连次数
      */
-    private volatile int reconnectCount;//重连次数统计
+    private volatile int reconnectCount;
     /**
      * 认为关闭
      */
-    private boolean closeByManual;//是否是手动关闭的连接
+    private boolean closeByManual;
     /**
      * 发送消息线程池和连接线程池
      */

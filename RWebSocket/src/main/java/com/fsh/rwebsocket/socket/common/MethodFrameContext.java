@@ -1,4 +1,4 @@
-package com.fsh.websocketconnect.socket.common;
+package com.fsh.rwebsocket.socket.common;
 
 import java.lang.reflect.Method;
 
