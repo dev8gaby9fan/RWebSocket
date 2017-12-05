@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements Observer<WebSocke
                 .observerOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .observer(MainActivity.this)
+                .reConnectTimeout(3*1000)//断开3秒后自动去重连
                 .okClient(client)
                 .build();
     }

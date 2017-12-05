@@ -1,8 +1,7 @@
 package com.fsh.webscoket;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.fsh.rwebsocket.packets.request.JSONRequest;
+import com.fsh.rwebsocket.request.JSONRequest;
 
 public class RequestPacket extends BaseDescription implements JSONRequest {;
     private BasePacket p;

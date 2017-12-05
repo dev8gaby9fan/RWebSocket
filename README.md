@@ -30,6 +30,7 @@ dependencies {
 handler = new WebSocketConnectHandler.Builder()
                 .url("ws://192.168.1.72:10000")//webSocket连接地址
                 .needReConnect(true)//是否在断开连接后自动重连
+                .reConnectTimeout(3*1000)//断开3秒后自动去重连
                 .observerOn(AndroidSchedulers.mainThread())//数据回调发生在主线程,基于RxJava实现
                 .subscribeOn(Schedulers.io())//数据发生在io线程
                 .observer(this)//观察者

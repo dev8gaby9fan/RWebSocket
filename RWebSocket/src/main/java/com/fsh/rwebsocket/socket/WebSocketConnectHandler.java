@@ -4,7 +4,7 @@ import android.app.AlertDialog;
 import android.os.Build;
 import android.util.Log;
 
-import com.fsh.rwebsocket.packets.request.JSONRequest;
+import com.fsh.rwebsocket.request.JSONRequest;
 import com.fsh.rwebsocket.socket.execption.ApiException;
 import com.fsh.rwebsocket.socket.response.BinaryMessageResponse;
 import com.fsh.rwebsocket.socket.response.ConnectStatusMsg;
