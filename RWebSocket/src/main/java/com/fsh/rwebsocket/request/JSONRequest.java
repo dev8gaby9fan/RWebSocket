@@ -1,4 +1,4 @@
-package com.fsh.rwebsocket.packets.request;
+package com.fsh.rwebsocket.request;
 
 public interface JSONRequest {
     String toJsonString();

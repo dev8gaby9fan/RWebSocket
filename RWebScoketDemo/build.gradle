@@ -29,5 +29,6 @@ dependencies {
     compile 'com.alibaba:fastjson:1.1.62.android'
     testCompile 'junit:junit:4.12'
     //    compile 'com.github.fshlny:RWebScoket:-SNAPSHOT'
-    compile 'com.github.fshlny:RWebScoket:1.0.0'
+    //    compile 'com.github.fshlny:RWebScoket:1.0.0'
+    compile project(':RWebSocket')
 }
