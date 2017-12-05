@@ -91,7 +91,7 @@ public void onNext(@NonNull WebSocketResponse response) {
 4. 断开连接
 
 ```
-
+handler.disConnect()
 ```
 
 5. 释放资源

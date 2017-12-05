@@ -1,4 +1,4 @@
-package com.fsh.rwebsocket.packets;
+package com.fsh.webscoket;
 
 
 import com.alibaba.fastjson.JSON;

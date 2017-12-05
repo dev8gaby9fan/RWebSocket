@@ -1,4 +1,4 @@
-package com.fsh.rwebsocket.packets;
+package com.fsh.webscoket;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -32,10 +32,5 @@ public class RequestPacket extends BaseDescription implements JSONRequest {;
 
     public String toJsonString(){
         return JSON.toJSONString(this);
-    }
-
-    @Override
-    public JSONObject toJSONObject() {
-        return (JSONObject) JSON.toJSON(this);
     }
 }

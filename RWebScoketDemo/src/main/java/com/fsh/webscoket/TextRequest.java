@@ -1,6 +1,4 @@
-package com.fsh.rwebsocket.packets.response;
-
-import com.fsh.rwebsocket.packets.BasePacket;
+package com.fsh.webscoket;
 
 
 public class TextRequest extends BasePacket {

@@ -1,4 +1,4 @@
-package com.fsh.rwebsocket.packets;
+package com.fsh.webscoket;
 
 /**
  * 描述，连接服务器的版本信息

@@ -5,12 +5,9 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.fsh.rwebsocket.packets.RequestPacket;
-import com.fsh.rwebsocket.packets.response.TextRequest;
 import com.fsh.rwebsocket.socket.ConnectStatus;
 import com.fsh.rwebsocket.socket.WebSocketConnectHandler;
 import com.fsh.rwebsocket.socket.WebSocketResponseMsgType;
@@ -61,8 +58,8 @@ public class MainActivity extends AppCompatActivity implements Observer<WebSocke
         }
         RequestPacket request = new RequestPacket(new TextRequest(input.getText().toString()));
         handler.sendMessage(request);
-        handler.sendTextMessage("您好");
-        handler.sendBinaryMsg(ByteString.of("您好".getBytes()));
+        //handler.sendTextMessage("您好");
+        //handler.sendBinaryMsg(ByteString.of("您好".getBytes()));
         input.setText("");
         showText.append("发送消息："+request.toJsonString()+"\n");
     }
@@ -73,11 +70,7 @@ public class MainActivity extends AppCompatActivity implements Observer<WebSocke
         }
     }
 
-    public void reconnect(View v){
-        if(handler != null){
-            handler.reconnect();
-        }
-    }
+
 
     @Override
     public void onSubscribe(@NonNull Disposable d) {

@@ -151,11 +151,13 @@ public class WebSocketConnectHandler extends WebSocketListener {
     @Override
     public void onMessage(WebSocket webSocket, String text) {
         this.emitter.onNext(new TextMessageResponse(text));
+        Log.e(TAG,"-------------------------------->"+text);
     }
 
     @Override
     public void onClosing(WebSocket webSocket, int code, String reason) {
-        setStatus(ConnectStatus.CONNECTION_CLOSE);
+        setStatus(ConnectStatus.CONNECTION_CLOSING);
+        Log.e(TAG, "onClosing :" + reason+",code:"+code);
     }
 
     @Override
@@ -165,7 +167,7 @@ public class WebSocketConnectHandler extends WebSocketListener {
 
     @Override
     public void onClosed(WebSocket webSocket, int code, String reason) {
-        Log.e(TAG, "连接关闭:" + reason);
+        Log.e(TAG, "onClosed :" + reason);
         setStatus(ConnectStatus.CONNECTION_CLOSE);
         if(code != ConnectStatus.CONNECT_CLOSE_MANUAL.getStatusCode()){
             autoReconnect();
@@ -177,7 +179,6 @@ public class WebSocketConnectHandler extends WebSocketListener {
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
         if(cStatus == ConnectStatus.CONNECT_CLOSE_MANUAL){//手动关闭连接
 //            setStatus(ConnectStatus.CONNECT_CLOSE_MANUAL);
-            this.closeByManual = false;//设置为false，可以继续重新连接
         }else{
             setStatus(ConnectStatus.CONNECTION_CLOSE);
             autoReconnect();
@@ -335,7 +336,7 @@ public class WebSocketConnectHandler extends WebSocketListener {
         });
     }
 
-    public void reconnect(){
+    /*public void reconnect(){
         if (this.cStatus == ConnectStatus.WEBSOCKET_INIT || this.cStatus == ConnectStatus.CONNECTED) {
             return;
         }
@@ -344,7 +345,7 @@ public class WebSocketConnectHandler extends WebSocketListener {
         }
         setStatus(ConnectStatus.CONNECT_RETRY);
         connect();
-    }
+    }*/
 
     /**
      * 重连

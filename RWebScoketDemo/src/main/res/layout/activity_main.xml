@@ -27,12 +27,6 @@
         android:onClick="disConnect"
         android:text="@string/text_disconnect"
         />
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/text_reconnect"
-        android:onClick="reconnect"
-        />
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
