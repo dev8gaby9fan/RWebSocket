@@ -19,7 +19,7 @@ allprojects {
 
 ```
 dependencies {
-	        compile 'com.github.fshlny:RWebScoket:-SNAPSHOT'
+	        compile 'com.github.fshlny:RWebScoket:1.0.0'
 }
 ```
 
@@ -55,8 +55,6 @@ handler.sendBinaryMsg(ByteString.of("您好".getBytes()));//byteString
 ```
 public interface JSONRequest {
     String toJsonString();
-
-    JSONObject toJSONObject();
 }
 ```
 
