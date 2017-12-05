@@ -130,6 +130,7 @@ public class WebSocketConnectHandler extends WebSocketListener {
         try {
             mLock.lockInterruptibly();
             mOkHttpClient.newWebSocket(mRequest, this);
+//            mOkHttpClient.dispatcher().executorService().shutdown();
             Log.d(TAG,Thread.currentThread().getName()+" connect to webSocket");
         } catch (Exception e) {
             Log.e(TAG, "WebSocket newWebSocket error", e);
@@ -144,13 +145,12 @@ public class WebSocketConnectHandler extends WebSocketListener {
         this.mWebSocket = webSocket;
         this.reconnectCount = 0;
         setStatus(ConnectStatus.CONNECTED);
-            Log.e(TAG, "连接成功");
+        Log.e(TAG, "connect success");
     }
 
     @Override
     public void onMessage(WebSocket webSocket, String text) {
         this.emitter.onNext(new TextMessageResponse(text));
-        Log.e(TAG, "String:" + text);
     }
 
     @Override
@@ -161,28 +161,41 @@ public class WebSocketConnectHandler extends WebSocketListener {
     @Override
     public void onMessage(WebSocket webSocket, ByteString bytes) {
         this.emitter.onNext(new BinaryMessageResponse(bytes));
-        Log.e(TAG, "接收到了ByteString消息:" + bytes.utf8());
     }
 
     @Override
     public void onClosed(WebSocket webSocket, int code, String reason) {
-        setStatus(ConnectStatus.CONNECTION_CLOSE);
-        reconnect();
         Log.e(TAG, "连接关闭:" + reason);
+        setStatus(ConnectStatus.CONNECTION_CLOSE);
+        if(code != ConnectStatus.CONNECT_CLOSE_MANUAL.getStatusCode()){
+            autoReconnect();
+            return;
+        }
     }
 
     @Override
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-        setStatus(ConnectStatus.CONNECT_FAILED);
-        reconnect();
-        t.printStackTrace();
-        Log.e(TAG, "连接失败:");
+        if(cStatus == ConnectStatus.CONNECT_CLOSE_MANUAL){//手动关闭连接
+//            setStatus(ConnectStatus.CONNECT_CLOSE_MANUAL);
+            this.closeByManual = false;//设置为false，可以继续重新连接
+        }else{
+            setStatus(ConnectStatus.CONNECTION_CLOSE);
+            autoReconnect();
+            Log.e(TAG, "连接失败:");
+        }
     }
 
-    private void setStatus(ConnectStatus s) {
-        this.cStatus = s;
-        if(emitter != null)
-        this.emitter.onNext(new ConnectStatusMsg(this.cStatus));
+    private void  setStatus(ConnectStatus s) {
+        try{
+            mLock.lock();
+            this.cStatus = s;
+            if(emitter != null)
+                this.emitter.onNext(new ConnectStatusMsg(this.cStatus));
+        }finally {
+            mLock.unlock();
+        }
+
+
     }
 
     public ConnectStatus getStatus() {
@@ -296,31 +309,47 @@ public class WebSocketConnectHandler extends WebSocketListener {
     /**
      * 手动关闭连接
      */
-    public void disConnect() {
+    public synchronized void disConnect() {
+        if (this.cStatus != ConnectStatus.CONNECTED) {
+            return;
+        }
+
+        reConnectThreadPool.submit(new Runnable() {
+            @Override
+            public void run() {
+                closeByManual = true;
+                setStatus(ConnectStatus.CONNECTION_CLOSING);
+                if (mOkHttpClient != null) {
+                    mOkHttpClient.dispatcher().cancelAll();
+                }
+                if (mWebSocket != null) {
+                    Log.d(TAG,Thread.currentThread().getName()+" disconnect");
+                    reconnectCount = 0;
+                    setStatus(ConnectStatus.CONNECT_CLOSE_MANUAL);
+                    boolean isClosed = mWebSocket.close(ConnectStatus.CONNECT_CLOSE_MANUAL.getStatusCode(),
+                            ConnectStatus.CONNECT_CLOSE_MANUAL.getStatusMsg());
+                    Log.e(TAG,"WebSocket是否关闭成功"+isClosed);
+                }
+
+            }
+        });
+    }
+
+    public void reconnect(){
         if (this.cStatus == ConnectStatus.WEBSOCKET_INIT || this.cStatus == ConnectStatus.CONNECTED) {
             return;
         }
-        setStatus(ConnectStatus.CONNECTION_CLOSING);
-        if (mOkHttpClient != null) {
-            mOkHttpClient.dispatcher().cancelAll();
+        if (!this.needReConnect || this.closeByManual) {
+            return;
         }
-        if (mWebSocket != null) {
-            Log.d(TAG,Thread.currentThread().getName()+" disconnect");
-            boolean isClosed = mWebSocket.close(ConnectStatus.CONNECT_CLOSE_MANUAL.getStatusCode(),
-                    ConnectStatus.CONNECT_CLOSE_MANUAL.getStatusMsg());
-            this.closeByManual = true;
-            if (isClosed) {
-                reconnectCount = 0;
-                setStatus(ConnectStatus.CONNECTION_CLOSE);
-            }
-        }
+        setStatus(ConnectStatus.CONNECT_RETRY);
+        connect();
     }
-
 
     /**
      * 重连
      */
-    public void reconnect() {
+    private synchronized void autoReconnect() {
         if (this.cStatus == ConnectStatus.WEBSOCKET_INIT || this.cStatus == ConnectStatus.CONNECTED) {
             return;
         }

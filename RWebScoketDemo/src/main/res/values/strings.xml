@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">WebScoket</string>
+    <string name="send_msg">发送</string>
+    <string name="edit_hint">请输入内容</string>
+    <string name="text_disconnect">断开连接</string>
+    <string name="text_reconnect">重连</string>
 </resources>

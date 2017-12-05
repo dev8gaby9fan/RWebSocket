@@ -3,6 +3,26 @@
 RWebSocket是一款基于OKHttp和RxJava实现的WebSocket连接工具，支持发送json字符串、普通字符窜
 和ByteString三种数据类型消息。其中断线重连部分参考了[WsManager](https://github.com/Rabtman/WsManager)
 
+## 引入项目
+
+1. 在项目根目录中的 build.gradle 中加入maven仓库地址
+```
+allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+```
+
+2. 在app目录下的build.gradle中加入依赖
+
+```
+dependencies {
+	        compile 'com.github.fshlny:RWebScoket:-SNAPSHOT'
+}
+```
+
 ## 使用方法
 
 1. 初始化WebSocketConnectHandler对象
@@ -68,11 +88,21 @@ public void onNext(@NonNull WebSocketResponse response) {
     }
 ```
 
-4. 释放资源
+4. 断开连接
 
 ```
-if(this.handler != null)
+
+```
+
+5. 释放资源
+
+```
+@Override
+    protected void onDestroy() {
+        if(this.handler != null)
             handler.shutDown();
+        super.onDestroy();
+    }
 ```
 
 ## 最终结果

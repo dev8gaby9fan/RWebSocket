@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -37,23 +38,20 @@ public class MainActivity extends AppCompatActivity implements Observer<WebSocke
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        String thread = Thread.currentThread().getName();
         input = (EditText) findViewById(R.id.input);
         showText = (TextView) findViewById(R.id.msg);
         showText.setText("数据开始初始化：\n");
         client = new OkHttpClient.Builder()
                 .retryOnConnectionFailure(true)
                 .build();
-
-       handler = new WebSocketConnectHandler.Builder()
+        handler = new WebSocketConnectHandler.Builder()
                 .url("ws://192.168.1.72:10000")
                 .needReConnect(true)
                 .observerOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .observer(this)
+                .observer(MainActivity.this)
                 .okClient(client)
                 .build();
-
     }
 
     public void send(View view){
@@ -67,6 +65,18 @@ public class MainActivity extends AppCompatActivity implements Observer<WebSocke
         handler.sendBinaryMsg(ByteString.of("您好".getBytes()));
         input.setText("");
         showText.append("发送消息："+request.toJsonString()+"\n");
+    }
+
+    public void disConnect(View view){
+        if(handler != null){//连接
+            handler.disConnect();
+        }
+    }
+
+    public void reconnect(View v){
+        if(handler != null){
+            handler.reconnect();
+        }
     }
 
     @Override
@@ -111,8 +121,8 @@ public class MainActivity extends AppCompatActivity implements Observer<WebSocke
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         if(this.handler != null)
             handler.shutDown();
+        super.onDestroy();
     }
 }

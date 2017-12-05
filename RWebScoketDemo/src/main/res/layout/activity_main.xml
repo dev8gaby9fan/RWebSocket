@@ -11,17 +11,35 @@
        android:id="@+id/input"
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
-       android:hint="请输入内容"
+       android:hint="@string/edit_hint"
        />
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="发送"
+        android:text="@string/send_msg"
         android:layout_marginTop="10dp"
         android:onClick="send"
         />
-    <TextView
-        android:id="@+id/msg"
+    <Button
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:onClick="disConnect"
+        android:text="@string/text_disconnect"
+        />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_reconnect"
+        android:onClick="reconnect"
+        />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </ScrollView>
+
 </LinearLayout>

@@ -1,10 +1,12 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
-def siteUrl = 'https://github.com/fshlny/RWebScoket'
-def gitUrl = 'https://github.com/fshlny/RWebScoket.git'
-group = "com.fsh.rwebsocket" // Maven Group ID for the artifact
+
 version = "1.0.0"
+
+def siteUrl = 'https://github.com/fshlny/RWebSocket'   // 项目的主页
+def gitUrl = 'https://github.com/fshlny/RWebSocket.git'   // Git仓库的url
+group = "com.fsh.rwebsocket"
 
 android {
     compileSdkVersion 26
@@ -25,10 +27,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+
     //-----------------WebSocket-------------------
     compile 'com.squareup.okhttp3:okhttp:3.9.1'
     //------------------JSON----------
@@ -45,7 +52,7 @@ install {
             project {
                 packaging 'aar'
                 // Add your description here
-                name 'WebSocket library'     //项目描述
+                name 'a WebSocket library based on OkHttp and RxJava2'     //项目的描述 你可以多写一点
                 url siteUrl
                 // Set your license
                 licenses {
@@ -56,8 +63,8 @@ install {
                 }
                 developers {
                     developer {
-                        id 'Fsh'        //填写的一些基本信息
-                        name 'Fsh'
+                        id 'fshlny'        //填写的一些基本信息
+                        name 'ShanFan'
                         email '467594943@qq.com'
                     }
                 }
@@ -87,18 +94,41 @@ artifacts {
     archives sourcesJar
 }
 Properties properties = new Properties()
+//读取properties的配置信息，当然直接把信息写到代码里也是可以的
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 bintray {
     user = properties.getProperty("bintray.user")
     key = properties.getProperty("bintray.apikey")
     configurations = ['archives']
     pkg {
-        repo = "maven"
-        name = "RWebSocket"    //发布到JCenter上的项目名字
+        repo = "maven"          //这个应该是传到maven的仓库的
+        name = "okhttpDownloadManager"    //发布的项目名字
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]
         publish = true
     }
 }
+/*ext {
+    bintrayRepo = 'maven' // your repo name
+    bintrayName = 'RWebSocket' // has to be same as your library module name
+    publishedGroupId = 'com.fsh.rwebsocket' // your module package name
+    libraryName = 'RWebSocket'
+    artifact = 'rwebsocket' // has to be same as your library module name
+    libraryDescription = 'WebSocket lib'
+    siteUrl = 'https://github.com/fshlny/RWebSocket'
+    gitUrl = 'https://github.com/fshlny/RWebSocket.git'
+    libraryVersion = '1.0'
+    developerId = 'fshlny'
+    developerName = 'fshlny'
+    developerEmail = '467594943@qq.com'
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}*/
+
+tasks.withType(org.gradle.api.tasks.javadoc.Javadoc) {
+    options.encoding = "UTF-8"
+}
+
 
