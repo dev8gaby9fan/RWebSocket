@@ -23,7 +23,6 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
-import okio.ByteString;
 
 public class MainActivity extends AppCompatActivity implements Observer<WebSocketResponse>{
     private static final String TAG = MainActivity.class.getSimpleName();
