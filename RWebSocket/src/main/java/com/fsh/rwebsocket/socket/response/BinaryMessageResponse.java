@@ -11,7 +11,7 @@ import okio.ByteString;
 public class BinaryMessageResponse extends WebSocketResponse {
     private ByteString response;
     public BinaryMessageResponse(ByteString response) {
-        super(WebSocketResponseMsgType.MESSAGE_TEXT);
+        super(WebSocketResponseMsgType.MESSAGE_BINARY);
         this.response = response;
     }
 
