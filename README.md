@@ -8,18 +8,18 @@ RWebSocket是一款基于OKHttp和RxJava实现的WebSocket连接工具，支持�
 1. 在项目根目录中的 build.gradle 中加入maven仓库地址
 ```
 allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
-	}
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
 ```
 
 2. 在app目录下的build.gradle中加入依赖
 
 ```
 dependencies {
-	        compile 'com.github.fshlny:RWebScoket:1.0.0'
+    implementation 'com.github.dev8gaby9fan:RWebScoket:v1.0.1'
 }
 ```
 
@@ -28,17 +28,24 @@ dependencies {
 1. 初始化WebSocketConnectHandler对象
 ```
 handler = new WebSocketConnectHandler.Builder()
-                .url("ws://192.168.1.72:10000")//webSocket连接地址
-                .needReConnect(true)//是否在断开连接后自动重连
-                .reConnectTimeout(3*1000)//断开3秒后自动去重连
-                .observerOn(AndroidSchedulers.mainThread())//数据回调发生在主线程,基于RxJava实现
-                .subscribeOn(Schedulers.io())//数据发生在io线程
-                .observer(this)//观察者
-                .okClient(client)//OkHttpClient对象
-                .build();
+    .url("ws://192.168.1.72:10000")//webSocket连接地址
+    .needReConnect(true)//是否在断开连接后自动重连
+    .reConnectTimeout(3*1000)//断开3秒后自动去重连
+    .observerOn(AndroidSchedulers.mainThread())//数据回调发生在主线程,基于RxJava实现
+    .subscribeOn(Schedulers.io())//数据发生在io线程
+    .observer(this)//观察者
+    .okClient(client)//OkHttpClient对象
+    .build();
 ```
 
-2. 发送消息
+2.连接
+
+```
+    handler.connect();
+
+```
+
+3. 发送消息
 
 ```
 //JSON字符串数据，需要竭诚JSONRequest接口
