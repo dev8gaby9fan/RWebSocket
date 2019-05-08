@@ -64,7 +64,7 @@ public class WebSocketConnectHandler extends WebSocketListener {
     /**
      * WebSocket连接对象
      */
-    private WebSocket mWebSocket;
+    private ConnectionCache connectionCache;
     /**
      * webSocket消息发送者（生产者）
      */
@@ -86,7 +86,7 @@ public class WebSocketConnectHandler extends WebSocketListener {
      */
     private ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
     /**
-     * 重连线程迟
+     * 重连线程池
      */
     private ScheduledExecutorService reConnectThreadPool = Executors.newScheduledThreadPool(1);
 
@@ -108,10 +108,11 @@ public class WebSocketConnectHandler extends WebSocketListener {
         webSocketDataStream.subscribeOn(b.subscribeOn)
                             .observeOn(b.observerOn)
                             .subscribe(b.observer);
-        connect();
+        connectionCache = new ConnectionCache();
+
     }
 
-    private void connect() {
+    public void connect() {
         cachedThreadPool.submit(new Runnable() {
             @Override
             public void run() {
@@ -142,7 +143,7 @@ public class WebSocketConnectHandler extends WebSocketListener {
 
     @Override
     public void onOpen(WebSocket webSocket, Response response) {
-        this.mWebSocket = webSocket;
+        connectionCache.addWebSocket(webSocket);
         this.reconnectCount = 0;
         setStatus(ConnectStatus.CONNECTED);
         Log.e(TAG, "connect success");
@@ -168,8 +169,13 @@ public class WebSocketConnectHandler extends WebSocketListener {
     @Override
     public void onClosed(WebSocket webSocket, int code, String reason) {
         Log.e(TAG, "onClosed :" + reason);
-        setStatus(ConnectStatus.CONNECTION_CLOSE);
-        if(code != ConnectStatus.CONNECT_CLOSE_MANUAL.getStatusCode()){
+        connectionCache.removeWebSocket(webSocket);//删除连接对象
+        if(code == ConnectStatus.CONNECT_CLOSE_MANUAL.getStatusCode()){
+            connectionCache.disConnect();
+        }else{
+            setStatus(ConnectStatus.CONNECTION_CLOSE);
+        }
+        if(code != ConnectStatus.CONNECT_CLOSE_MANUAL.getStatusCode() && !connectionCache.isConnected()){
             autoReconnect();
             return;
         }
@@ -177,12 +183,19 @@ public class WebSocketConnectHandler extends WebSocketListener {
 
     @Override
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-        if(cStatus == ConnectStatus.CONNECT_CLOSE_MANUAL){//手动关闭连接
+        connectionCache.removeWebSocket(webSocket);//删除连接对象
+        if(!connectionCache.isConnected()){
+            if(cStatus == ConnectStatus.CONNECTING){//连接失败
+                setStatus(ConnectStatus.CONNECT_FAILED);
+                return;
+            }
+            if(cStatus == ConnectStatus.CONNECT_CLOSE_MANUAL){//手动关闭连接
 //            setStatus(ConnectStatus.CONNECT_CLOSE_MANUAL);
-        }else{
-            setStatus(ConnectStatus.CONNECTION_CLOSE);
-            autoReconnect();
-            Log.e(TAG, "连接失败:");
+            }else{
+                setStatus(ConnectStatus.CONNECTION_CLOSE);
+                autoReconnect();
+                Log.e(TAG, "连接失败:");
+            }
         }
     }
 
@@ -278,7 +291,11 @@ public class WebSocketConnectHandler extends WebSocketListener {
                     @Override
                     public void run() {
                         Log.d(TAG,Thread.currentThread().getName()+" send String WebSocket message");
-                        mWebSocket.send(msg);
+                        if(connectionCache.isConnected()){
+                            connectionCache.getCurrentConnection().send(msg);
+                        }else{
+                            throw new ApiException("WebSocket connection has been disconnected");
+                        }
                     }
                 });
             }
@@ -298,7 +315,11 @@ public class WebSocketConnectHandler extends WebSocketListener {
                     @Override
                     public void run() {
                         Log.d(TAG,Thread.currentThread().getName()+" sendByte WebSocket message");
-                        mWebSocket.send(msg);
+                        if(connectionCache.isConnected()){
+                            connectionCache.getCurrentConnection().send(msg);
+                        }else{
+                            throw new ApiException("WebSocket connection has been disconnected");
+                        }
                     }
                 });
             }
@@ -323,11 +344,11 @@ public class WebSocketConnectHandler extends WebSocketListener {
                 if (mOkHttpClient != null) {
                     mOkHttpClient.dispatcher().cancelAll();
                 }
-                if (mWebSocket != null) {
+                if (connectionCache.isConnected()) {
                     Log.d(TAG,Thread.currentThread().getName()+" disconnect");
                     reconnectCount = 0;
                     setStatus(ConnectStatus.CONNECT_CLOSE_MANUAL);
-                    boolean isClosed = mWebSocket.close(ConnectStatus.CONNECT_CLOSE_MANUAL.getStatusCode(),
+                    boolean isClosed = connectionCache.getCurrentConnection().close(ConnectStatus.CONNECT_CLOSE_MANUAL.getStatusCode(),
                             ConnectStatus.CONNECT_CLOSE_MANUAL.getStatusMsg());
                     Log.e(TAG,"WebSocket是否关闭成功"+isClosed);
                 }

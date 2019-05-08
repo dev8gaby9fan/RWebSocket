@@ -23,6 +23,7 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
+import okio.ByteString;
 
 public class MainActivity extends AppCompatActivity implements Observer<WebSocketResponse>{
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -52,16 +53,22 @@ public class MainActivity extends AppCompatActivity implements Observer<WebSocke
     }
 
     public void send(View view){
-        if(handler == null || handler.getStatus() != ConnectStatus.CONNECTED
-                || TextUtils.isEmpty(input.getText())){
+        if(handler == null || handler.getStatus() != ConnectStatus.CONNECTED){
             return;
         }
-        RequestPacket request = new RequestPacket(new TextRequest(input.getText().toString()));
+        String inputStr = TextUtils.isEmpty(input.getText())? "nothing input":input.getText().toString();
+        RequestPacket request = new RequestPacket(new TextRequest(inputStr));
         handler.sendMessage(request);
-        //handler.sendTextMessage("您好");
-        //handler.sendBinaryMsg(ByteString.of("您好".getBytes()));
+        handler.sendTextMessage("您好服务器");
+        handler.sendBinaryMsg(ByteString.of("hello server".getBytes()));
         input.setText("");
         showText.append("发送消息："+request.toJsonString()+"\n");
+    }
+
+    public void connect(View view) {
+        if(handler.getStatus() != ConnectStatus.CONNECTED){
+            handler.connect();
+        }
     }
 
     public void disConnect(View view){
@@ -84,8 +91,9 @@ public class MainActivity extends AppCompatActivity implements Observer<WebSocke
         WebSocketResponseMsgType type = response.getType();
         switch (type) {
             case CONNECTSTATUS:
-                Log.d(TAG, Thread.currentThread().getName()+"当前连接状态:" + ((ConnectStatusMsg) response).getStatus().getStatusMsg());
-                showText.append("接收到了状态消息："+((ConnectStatusMsg) response).getStatus().getStatusMsg()+"\n");
+                ConnectStatus status = ((ConnectStatusMsg) response).getStatus();
+                Log.d(TAG, Thread.currentThread().getName()+"当前连接状态:" + status.getStatusMsg());
+                showText.append(String.format("接收到了状态消息：%s %s\n",status.getStatusMsg(),status.name()));
                 break;
             case ERROR_MESSAGE:
                 Log.d(TAG, Thread.currentThread().getName()+"消息发送失败:" + ((ErrorResponse) response).getMsg());
@@ -118,4 +126,6 @@ public class MainActivity extends AppCompatActivity implements Observer<WebSocke
             handler.shutDown();
         super.onDestroy();
     }
+
+
 }
